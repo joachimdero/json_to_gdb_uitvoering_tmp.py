@@ -6,7 +6,6 @@ from datetime import datetime
 import pandas as pd
 from shapely.geometry import shape
 
-
 def make_df(in_jsonl, out_format, laag):
     # Haal de veldnamen en veldtypen op
     # print(os.path.basename(in_jsonl).split(".")[0])

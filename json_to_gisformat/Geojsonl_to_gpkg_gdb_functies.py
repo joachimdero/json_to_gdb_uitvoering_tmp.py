@@ -12,6 +12,7 @@ def make_df(in_jsonl, out_format, laag):
     # print(os.path.basename(in_jsonl).split(".")[0])
     f_names = out_format["lagen"][laag]["velden"].keys()
 
+
     # Maak een Pandas DataFrame
     df = pd.DataFrame(data=None, columns=f_names)
 

@@ -1,7 +1,7 @@
 {
   "lagen": {
     "afgeleide_tonnage_voorwaarden": {
-      "geometry_type": "POLYLINE",
+      "geometry_type": "MULTILINESTRING",
       "velden": {
         "wegsegmentId": {
           "veldtype": "int"
@@ -20,7 +20,7 @@
       }
     },
     "wegenregister": {
-      "geometry_type": "POLYLINE",
+      "geometry_type": "MULTILINESTRING",
       "velden": {
         "id": {
           "veldtype": "int",
@@ -129,7 +129,7 @@
       }
     },
     "afgeleide_zones": {
-      "geometry_type": "POLYLINE",
+      "geometry_type": "MULTILINESTRING",
       "velden": {
         "wegsegmentId": {
           "veldtype": "int",
@@ -152,7 +152,7 @@
       }
     },
     "afgeleide_snelheidsregimes_wegsegment_bord": {
-      "geometry_type": "POLYLINE",
+      "geometry_type": "MULTILINESTRING",
       "velden": {
         "wegsegmentId": {
           "veldtype": "int",
@@ -218,61 +218,61 @@
           "veldtype": "str",
           "veldlengte": null
         }
-      },
-      "bebouwdekommen_wrapp": {
-        "velden": {
-          "locatie_wsoidn": {
-            "veldtype": "str",
-            "veldlengte": null
-          },
-          "locatie_van_m": {
-            "veldtype": "int",
-            "veldlengte": null
-          },
-          "locatie_tot_m": {
-            "veldtype": "int",
-            "veldlengte": null
-          },
-          "locatie_wegnummer": {
-            "veldtype": "str",
-            "veldlengte": null
-          },
-          "locatie_van_refpunt": {
-            "veldtype": "decimal",
-            "veldlengte": null
-          },
-          "locatie_van_afstand": {
-            "veldtype": "int",
-            "veldlengte": null
-          },
-          "locatie_tot_refpunt": {
-            "veldtype": "decimal",
-            "veldlengte": null
-          },
-          "locatie_tot_afstand": {
-            "veldtype": "int",
-            "veldlengte": null
-          },
-          "naam": {
-            "veldtype": "str",
-            "veldlengte": null
-          },
-          "aangepastDoor": {
-            "veldtype": "str",
-            "veldlengte": null
-          },
-          "opnamedatum": {
-            "veldtype": "date",
-            "veldlengte": null
-          },
-          "laatsteWijziging": {
-            "veldtype": "date",
-            "veldlengte": null
-          },
-          "notitie": {
-            "veldtype": "str",
-            "veldlengte": null
-          }
+      }
+    },
+    "bebouwdekommen_wrapp": {
+      "velden": {
+        "locatie_wsoidn": {
+          "veldtype": "str",
+          "veldlengte": null
+        },
+        "locatie_van_m": {
+          "veldtype": "int",
+          "veldlengte": null
+        },
+        "locatie_tot_m": {
+          "veldtype": "int",
+          "veldlengte": null
+        },
+        "locatie_wegnummer": {
+          "veldtype": "str",
+          "veldlengte": null
+        },
+        "locatie_van_refpunt": {
+          "veldtype": "decimal",
+          "veldlengte": null
+        },
+        "locatie_van_afstand": {
+          "veldtype": "int",
+          "veldlengte": null
+        },
+        "locatie_tot_refpunt": {
+          "veldtype": "decimal",
+          "veldlengte": null
+        },
+        "locatie_tot_afstand": {
+          "veldtype": "int",
+          "veldlengte": null
+        },
+        "naam": {
+          "veldtype": "str",
+          "veldlengte": null
+        },
+        "aangepastDoor": {
+          "veldtype": "str",
+          "veldlengte": null
+        },
+        "opnamedatum": {
+          "veldtype": "date",
+          "veldlengte": null
+        },
+        "laatsteWijziging": {
+          "veldtype": "date",
+          "veldlengte": null
+        },
+        "notitie": {
+          "veldtype": "str",
+          "veldlengte": null
         }
       }
     },
@@ -359,11 +359,11 @@
           "veldlengte": null
         },
         "opnamedatum": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "laatsteWijziging": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "notitie": {
@@ -423,11 +423,11 @@
           "veldlengte": null
         },
         "opnamedatum": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "laatsteWijziging": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "notitie": {
@@ -883,7 +883,7 @@
           "veldlengte": null
         },
         "laatsteWijziging": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         }
       }
@@ -911,19 +911,19 @@
           "veldlengte": null
         },
         "begindatum": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "opnamedatum": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "creatiedatum": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "wijzigingsdatum": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "opmerking": {
@@ -979,11 +979,11 @@
           "veldlengte": null
         },
         "opnamedatum": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "laatsteWijziging": {
-          "veldtype": "str",
+          "veldtype": "date",
           "veldlengte": null
         },
         "notitie": {

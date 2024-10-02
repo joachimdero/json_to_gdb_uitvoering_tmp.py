@@ -6,11 +6,11 @@ from datetime import datetime
 import pandas as pd
 from shapely.geometry import shape
 
+
 def make_df(in_jsonl, out_format, laag):
     # Haal de veldnamen en veldtypen op
     # print(os.path.basename(in_jsonl).split(".")[0])
     f_names = out_format["lagen"][laag]["velden"].keys()
-
 
     # Maak een Pandas DataFrame
     df = pd.DataFrame(data=None, columns=f_names)
@@ -50,7 +50,9 @@ def read_jsonlines(file_path, f_names, out_format, laag):
             if i > 10:
                 pass
             if i in range(0, 10000000, 10000):
-                print(f"read jsonlines: {i} rows")
+                sys.stdout.write(f"\rread jsonlines: {i} rows")
+                sys.stdout.flush()
+                # print(f"read jsonlines: {i} rows")
 
             data = json.loads(line)  # Parse de JSON-lijn
             properties = data.get('properties', {})  # Haal de properties op
@@ -71,6 +73,11 @@ def read_jsonlines(file_path, f_names, out_format, laag):
                 else:
                     relevant_data[field] = properties.get(source)
 
+                # Controleer of het veldtype een datum is en converteer deze
+                if field_info["veldtype"] == "date" and relevant_data[field] is not None:
+                    # print(f"DATE:{field}")
+                    relevant_data[field] = parse_date(relevant_data[field])
+
             geometry_type_laag = out_format["lagen"][laag].get("geometry_type", None)
 
             # print(f"data['geometry']:{data['geometry']}")
@@ -80,7 +87,8 @@ def read_jsonlines(file_path, f_names, out_format, laag):
             geometry = shape(geometry)
             relevant_data['geometry'] = geometry  # Voeg de geometrie toe
             # print(f"relevant_data['geometry']:{relevant_data['geometry']}")
-            relevant_data['copydatum'] = datetime.now().strftime('%Y-%m-%d')
+            # relevant_data['copydatum'] = datetime.now().strftime('%Y-%m-%d')
+            relevant_data['copydatum'] = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'))
 
             yield relevant_data
 
@@ -169,3 +177,24 @@ def process_geometry(geometry_dict, geometry_type_laag=None):
         sys.exit()
 
     return geometry_dict
+
+def parse_date(datum_str):
+    # Lijst van veelvoorkomende datumformaten
+    date_formats = [
+        '%Y-%m-%d',          # 2023-06-01
+        '%d-%m-%Y',          # 01-06-2023
+        '%Y-%m-%dT%H:%M:%S', # 2023-06-01T12:30:45
+        '%d/%m/%Y',          # 01/06/2023
+        '%m/%d/%Y',          # 06/01/2023
+        '%Y/%m/%d'           # 2023/06/01
+    ]
+
+    for date_format in date_formats:
+        try:
+            # Probeer elk formaat
+            return pd.to_datetime(datum_str, format=date_format, errors='raise')
+        except ValueError:
+            continue  # Ga door naar het volgende formaat
+
+    # Als geen enkel formaat werkt, retourneer NaT
+    return pd.NaT

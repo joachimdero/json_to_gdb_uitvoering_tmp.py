@@ -7,7 +7,7 @@ import pandas as pd
 from shapely.geometry import shape
 
 
-def make_df(in_jsonl, out_format, laag):
+def make_df(out_format: dict, laag: str) -> tuple[pd.DataFrame, list[str]]:
     # Haal de veldnamen en veldtypen op
     # print(os.path.basename(in_jsonl).split(".")[0])
     f_names = out_format["lagen"][laag]["velden"].keys()
@@ -88,7 +88,7 @@ def read_jsonlines(file_path, f_names, out_format, laag):
             relevant_data['geometry'] = geometry  # Voeg de geometrie toe
             # print(f"relevant_data['geometry']:{relevant_data['geometry']}")
             # relevant_data['copydatum'] = datetime.now().strftime('%Y-%m-%d')
-            relevant_data['copydatum'] = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'))
+            relevant_data['copydatum'] = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'), format='%Y-%m-%d')
 
             yield relevant_data
 

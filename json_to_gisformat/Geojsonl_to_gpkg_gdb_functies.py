@@ -3,29 +3,29 @@ import os
 import sys
 from datetime import datetime
 
-import pandas as pd
+import polars as pl
 from shapely.geometry import shape
 
 
-def make_df(out_format: dict, laag: str) -> tuple[pd.DataFrame, list[str]]:
+def make_df(out_format: dict, laag: str) -> tuple[pl.DataFrame, list[str]]:
     # Haal de veldnamen en veldtypen op
     # print(os.path.basename(in_jsonl).split(".")[0])
     f_names = out_format["lagen"][laag]["velden"].keys()
 
     # Maak een Pandas DataFrame
-    df = pd.DataFrame(data=None, columns=f_names)
+    df = pl.DataFrame(data=None, schema=f_names)
 
     # Zet de datatypes aan de hand van de veldtypen uit de dictionary
     for f in f_names:
         f_type = out_format["lagen"][laag]["velden"][f]["veldtype"]
         if f_type == "int":
-            df[f] = df[f].astype(int)
+            df.cast({f: pl.Int32})
         elif f_type == "decimal":
-            df[f] = df[f].astype('float64')
+            df.cast({f: pl.Float64})
         elif f_type == "str":
-            df[f] = df[f].astype(str)
+            df.cast({f: pl.String})
         elif f_type == "date":
-            df[f] = pd.to_datetime(df[f], format='%Y-%m-%d')
+            df.cast({f: pl.Datetime})
     return df, f_names
 
 
@@ -88,7 +88,7 @@ def read_jsonlines(file_path, f_names, out_format, laag):
             relevant_data['geometry'] = geometry  # Voeg de geometrie toe
             # print(f"relevant_data['geometry']:{relevant_data['geometry']}")
             # relevant_data['copydatum'] = datetime.now().strftime('%Y-%m-%d')
-            relevant_data['copydatum'] = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'), format='%Y-%m-%d')
+            relevant_data['copydatum'] = datetime.now().strftime('%Y-%m-%d')
 
             yield relevant_data
 
@@ -192,9 +192,9 @@ def parse_date(datum_str):
     for date_format in date_formats:
         try:
             # Probeer elk formaat
-            return pd.to_datetime(datum_str, format=date_format, errors='raise')
+            return datetime.strptime(datum_str, date_format)
         except ValueError:
             continue  # Ga door naar het volgende formaat
 
     # Als geen enkel formaat werkt, retourneer NaT
-    return pd.NaT
+    return pl.Null

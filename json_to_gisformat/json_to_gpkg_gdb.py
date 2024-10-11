@@ -3,7 +3,7 @@ import json
 import os
 import logging
 from datetime import datetime
-import pandas as pd
+import polars as pl
 import geopandas as gpd
 from Geojsonl_to_gpkg_gdb_functies import make_df, read_jsonlines
 
@@ -37,16 +37,17 @@ def main():
             df, f_names = make_df(out_format, laag)
 
             # Voeg data toe aan het bestaande DataFrame
-            new_data = pd.DataFrame(read_jsonlines(in_jsonl, f_names, out_format, laag))
+            new_data = pl.DataFrame(read_jsonlines(in_jsonl, f_names, out_format, laag))
 
             # Gebruik pd.concat om de nieuwe data toe te voegen aan het bestaande DataFrame
-            df = pd.concat([df, new_data], ignore_index=True)
+            df = pl.concat([new_data, df], how="diagonal")
 
             # Zet de 'copydatum' kolom om naar een datetime-object
-            df['copydatum'] = pd.to_datetime(df['copydatum'], errors='coerce')
+            df.cast({'copydatum': pl.Date})
 
+            pandas_df = df.to_pandas(use_pyarrow_extension_array=True)
             # Zet het DataFrame om naar een GeoDataFrame
-            gdf = gpd.GeoDataFrame(df, geometry=df['geometry'], crs=31370)
+            gdf = gpd.GeoDataFrame(pandas_df, geometry=pandas_df['geometry'], crs=31370)
 
             # Controleer het resultaat
             logging.info(f"Aantal rijen in het DataFrame: {gdf.shape[0]}")
@@ -62,6 +63,7 @@ def main():
         except ValueError as e:
             logging.error(f"Waarde fout bij het verwerken van laag {laag}: {e}")
         except Exception as e:
+            raise e
             logging.error(f"Onverwachte fout bij het verwerken van laag {laag}: {e}")
     logging.info("stop LOG")
 

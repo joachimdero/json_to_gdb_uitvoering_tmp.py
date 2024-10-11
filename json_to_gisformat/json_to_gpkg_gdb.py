@@ -1,3 +1,4 @@
+import cProfile
 import json
 import os
 import logging
@@ -17,64 +18,52 @@ logging.basicConfig(
 )
 logging.info("start LOG")
 
-out_format_json = r"C:\awvData\awvDataTools\json_to_gisformat\out_format.json"
-with open(out_format_json, 'r') as file:
-    out_format = json.load(file)
 
-in_jsonl_path = r"C:\awvData\downloadGeolatteNoSqlFeatureserver"
+def main():
+    out_format_json = r"/home/davidlinux/PycharmProjects/json_to_gdb_uitvoering_tmp.py/json_to_gisformat/out_format.json"
+    with open(out_format_json, 'r') as file:
+        out_format = json.load(file)
+    in_jsonl_path = r"/home/davidlinux/PycharmProjects/json_to_gdb_uitvoering_tmp.py/inputfiles"
+    i = 0
+    for laag in out_format["lagen"]:
+        i += 1
+        logging.info(f"start verwerking laag {i}.{laag}")
+        if laag not in [
+            'fietssuggestiestroken_wrapp'
+        ]: continue
 
-i = 0
-for laag in out_format["lagen"]:
-    i += 1
-    logging.info(f"start verwerking laag {i}.{laag}")
-    if laag not in [
-        'afgeleide_tonnage_voorwaarden',
-        'afgeleide_zones',
-        'afgeleide_snelheidsregimes_wegsegment_bord',
-        'afgeleide_tonnage',
-        'bebouwdekommen_wrapp',
-        'emonderdelen',
-        'fastpercelenplus35t_wrapp',
-        'fietspaden_wrapp',
-        'fietssuggestiestroken_wrapp',
-        'innames',
-        'knelpunten_locaties',
-        'lzv_trajecten_wrapp',
-        'referentiepunten',
-        'snelheidsregimes_wrapp',
-        'wegenregister',
-    ]:continue
+        try:
+            in_jsonl = os.path.join(in_jsonl_path, laag + ".json")
+            df, f_names = make_df(out_format, laag)
 
-    try:
-        in_jsonl = os.path.join(in_jsonl_path, laag + ".json")
-        df, f_names = make_df(in_jsonl, out_format, laag)
+            # Voeg data toe aan het bestaande DataFrame
+            new_data = pd.DataFrame(read_jsonlines(in_jsonl, f_names, out_format, laag))
 
-        # Voeg data toe aan het bestaande DataFrame
-        new_data = pd.DataFrame(read_jsonlines(in_jsonl, f_names, out_format, laag))
+            # Gebruik pd.concat om de nieuwe data toe te voegen aan het bestaande DataFrame
+            df = pd.concat([df, new_data], ignore_index=True)
 
-        # Gebruik pd.concat om de nieuwe data toe te voegen aan het bestaande DataFrame
-        df = pd.concat([df, new_data], ignore_index=True)
+            # Zet de 'copydatum' kolom om naar een datetime-object
+            df['copydatum'] = pd.to_datetime(df['copydatum'], errors='coerce')
 
-        # Zet de 'copydatum' kolom om naar een datetime-object
-        df['copydatum'] = pd.to_datetime(df['copydatum'], errors='coerce')
+            # Zet het DataFrame om naar een GeoDataFrame
+            gdf = gpd.GeoDataFrame(df, geometry=df['geometry'], crs=31370)
 
-        # Zet het DataFrame om naar een GeoDataFrame
-        gdf = gpd.GeoDataFrame(df, geometry=df['geometry'], crs=31370)
+            # Controleer het resultaat
+            logging.info(f"Aantal rijen in het DataFrame: {gdf.shape[0]}")
 
-        # Controleer het resultaat
-        logging.info(f"Aantal rijen in het DataFrame: {gdf.shape[0]}")
+            # Exporteer het GeoDataFrame naar een GeoPackage
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  maak geopackage")
+            gdf.to_file(r"/home/davidlinux/PycharmProjects/json_to_gdb_uitvoering_tmp.py/outputfiles/AwvData.gpkg", layer=laag, driver="GPKG")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  maak OpenFileGDB")
+            gdf.to_file(r"/home/davidlinux/PycharmProjects/json_to_gdb_uitvoering_tmp.py/outputfiles/AwvData.gdb", layer=laag, driver="OpenFileGDB")
 
-        # Exporteer het GeoDataFrame naar een GeoPackage
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  maak geopackage")
-        gdf.to_file(r"C:\awvData\AwvData.gpkg", layer=laag, driver="GPKG")
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  maak OpenFileGDB")
-        gdf.to_file(r"C:\awvData\AwvData.gdb", layer=laag, driver="OpenFileGDB")
+        except FileNotFoundError as e:
+            logging.error(f"Bestand niet gevonden voor laag {laag}: {e}")
+        except ValueError as e:
+            logging.error(f"Waarde fout bij het verwerken van laag {laag}: {e}")
+        except Exception as e:
+            logging.error(f"Onverwachte fout bij het verwerken van laag {laag}: {e}")
+    logging.info("stop LOG")
 
-    except FileNotFoundError as e:
-        logging.error(f"Bestand niet gevonden voor laag {laag}: {e}")
-    except ValueError as e:
-        logging.error(f"Waarde fout bij het verwerken van laag {laag}: {e}")
-    except Exception as e:
-        logging.error(f"Onverwachte fout bij het verwerken van laag {laag}: {e}")
-
-logging.info("stop LOG")
+if __name__ == '__main__':
+    cProfile.run('main()')
